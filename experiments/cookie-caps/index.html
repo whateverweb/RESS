@@ -2,7 +2,7 @@
 <html lang="en-US">
 <head>
 	<meta charset="utf-8">
-	<title>Header Scripts - RESS</title>
+	<title>Cookie stored capabilities - RESS</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no" />
 	<script>
 	(function(w, d){
@@ -175,9 +175,21 @@
 </head>
 <body>
 
-<h1>Header scripts</h1>
+<h1>Cookie stored capabilities for asset adaptation</h1>
 
-<p>These script need to run as soon as possible, because of some reason or other.</p>
+<p>To be able to serve different assets depending on the visitors capabilities we need to do some wonky stuff.</p>
+
+<p>We must know the capabilities before the assets are loaded. To do that we set a cookie as soon as possible, and then that cookie will be sent with the asset request, along with the asset's configuration in its URL.</p>
+
+<h2>Examples</h2>
+
+<p>There are no examples yet.</p>
+
+<p><img src="img/angry-cookie-monster.jpg" alt="What the hell is this crap!? Asks Cookie Monster." /></p>
+
+<h2>Header scripts</h2>
+
+<p>These script need to run as soon as possible, before any external resources.</p>
 
 <p>Write fast, minimal and efficient code! Make sure that it minifies well. Optimization is more important than internal readability in this case.</p>
 
