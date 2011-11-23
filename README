@@ -1,0 +1,23 @@
+Here we do RESS stuff that we can use in other projects, or as products themselves.
+
+# Components
+
+Stuff that is production ready.
+
+Include: sources, documentation, examples and tests.
+
+# Experiments
+
+When you want to try stuff.
+
+Don't create shitty directory names.
+
+# Tests
+
+When you need to test something.
+
+Try to write tests that can be run on many devices.
+
+Document the results from your tests.
+
+Include: test source, documentation, examples, test results.
