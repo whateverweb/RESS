@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="en-US">
+<head>
+	<meta charset="utf-8">
+	<title>Header Scripts - RESS</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no" />
+	<script>
+	(function(w, d){
+	/*
+		Header Scripts
+	*/
+	var MT = w.MT = w.MT || {};
+
+	// Adaptation handling
+	MT.adapt = (function() {
+		var list = [],
+			  delayResize = false,
+			  resetDelay,
+			  delayedResize;
+	
+		function callMethods(methods) {
+			if (methods && methods.length) {
+				for (var i = 0; i < methods.length; i++) {
+					methods[i]();
+				}
+			}
+		}
+	
+		function resize() {
+			if (list.resize.length) {
+				// console.log('OO every');
+				if (!delayResize) {
+					// console.log('== first');
+					delayResize = true;
+					callMethods(list.resize);
+					resetDelay = setTimeout(function() {
+						delayResize = false;
+					}, 300);
+				} else if (!delayedResize) {
+					// console.log('|| timed');
+					clearTimeout(resetDelay);
+					delayedResize = setTimeout(function() {
+						callMethods(list.resize);
+						delayedResize = null;
+						resetDelay = setTimeout(function() {
+							delayResize = false;
+						}, 400);
+					}, 200);
+				}
+			}
+		}
+	
+		w.addEventListener('resize', resize, false);
+	
+		return {
+			add: function(type, method) {
+				if (!list[type]) list[type] = [];
+				list[type].push(method);
+			}
+		};
+	}());
+
+	// Breakpoint handling
+	MT.bp = (function() {
+		var list = [];
+	
+		return {
+			add: function(bps) {
+				list = list.concat(bps);
+			},
+			remove: function(bps) {
+				var i, x;
+				for (i = 0; i < bps.length; i++) {
+					for (x = 0; x < list.length; x++) {
+						if (list[x].id === bps[i]) list.splice(i, 1);
+					}
+				}
+			},
+			getActive: function() {
+				var active = [],
+						vpw = MT.cap.vpw,
+						i,
+						bp;
+				for (i = 0; i < list.length; i++) {
+					bp = list[i];
+					(vpw >= bp.min && vpw <= bp.max) ? active.push(bp) :
+						(!bp.max && vpw >= bp.min) ? active.push(bp) :
+							(!bp.min && vpw <= bp.max) && active.push(bp);
+				}
+				return active.length ? active : null;
+			},
+			list: list
+		};
+	}());
+
+	// Client side detected capabilities.
+	// Only the ones needed right away for responsive images and such.
+	MT.cap = {};
+	MT.capTests = function() {
+		var cookie = 'RESS=',
+			  cookieDate = new Date(),
+			  caps = MT.cap,
+			  bp,
+			  groups = MT.g.groups,
+			  cap,
+			  i;
+	
+		// Viewport width and height
+		if (w.innerWidth) { caps.vpw = w.innerWidth; }
+		// Grid column width
+		// Remove margin from viewport, cap at max width, max 2 decimals
+		caps.gw = (Math.min(caps.vpw * ((100 - (MT.g.margin * 2)) / 100), MT.g.max) / MT.g.cols).toFixed(2).replace('.', ',');
+
+		bp = MT.bp.getActive()[0];
+	
+		// Set a cookie with the client side capabilities.
+		cookie += 'bp.' + bp.id;
+		for (cap in caps) {
+			cookie += '|' + cap + '.' + caps[cap];
+		}
+		for (i = 0; i < groups.length; i++) {
+			cookie += '|gn' + groups[i].id + '.' + groups[i][bp.id]
+		}
+		cookieDate.setFullYear(cookieDate.getFullYear() + 1);
+		d.cookie = cookie + '; expires='+ cookieDate.toUTCString() +'; path=/';
+	};
+	
+	/*
+		User config
+	*/
+	
+	// Grid config
+	MT.g = {
+		// Column in grid
+		cols: 16,
+		// Grid is capped at this pixel width
+		max: 1067,
+		// Margin, in percent, on either side of the grid
+		// when not at max width
+		margin: 5.555555555,
+		// Groups 
+		groups: [
+			{id: '1', n: 50, m: 100, w: 150},
+			{id: '2', n: 33, m: 66, w: 99},
+			{id: '3', n: 107, m: 214, w: 321}
+		]
+	};
+	
+	// Register some breakpoints
+	MT.bp.add([{
+			name: 'narrow',
+			id: 'n',
+			max: 759
+		}, {
+			name: 'medium',
+			id: 'm',
+			min: 760,
+			max: 1199
+		}, {
+			name: 'wide',
+			id: 'w',
+			min: 1200
+	}]);
+	
+	/*
+		Initiation
+	*/
+	
+	MT.capTests();
+	MT.adapt.add('resize', MT.capTests);
+	}(window, document));
+	
+	if (console && console.log) console.log('cookie: ' + document.cookie);
+	</script>
+</head>
+<body>
+
+<h1>Header scripts</h1>
+
+<p>These script need to run as soon as possible, because of some reason or other.</p>
+
+<p>Write fast, minimal and efficient code! Make sure that it minifies well. Optimization is more important than internal readability in this case.</p>
+
+</body>
+</html>
+
+
