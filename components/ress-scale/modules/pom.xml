@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <parent>
+        <groupId>mobiletech</groupId>
+        <artifactId>ress-scale</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+    </parent>
+    <groupId>mobiletech</groupId>
+    <modelVersion>4.0.0</modelVersion>
+    <artifactId>ress-scale-modules</artifactId>
+    <packaging>pom</packaging>
+    <name>ress-scale.modules</name>
+    <modules>
+        <module>scale</module>
+    </modules>
+</project>
