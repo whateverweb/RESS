@@ -35,7 +35,6 @@
 			
 			fire: function(type) {
 				var methods = registry[type], i;
-				console.log(methods);
 				if (methods instanceof Array) {
 					for (i = 0; i < methods.length; i++) {
 						methods[i]();
@@ -185,9 +184,9 @@
 	
 	MT.capTests();
 	MT.event.add('timedResize', MT.capTests);
-	}(window, document));
 	
-	if (console && console.log) console.log('cookie: ' + document.cookie);
+	if (console && console.log) console.log('cookie: ' + d.cookie);
+	}(window, document));
 	</script>
 </head>
 <body>
@@ -200,7 +199,9 @@
 
 <h2>Examples</h2>
 
-<p>There are no examples yet.</p>
+<p>There are no examples of adapted assets yet.</p>
+
+<p id="cookieValue"></p>
 
 <p><img src="img/angry-cookie-monster.jpg" alt="What the hell is this crap!? Asks Cookie Monster." /></p>
 
@@ -209,6 +210,21 @@
 <p>These script need to run as soon as possible, before any external resources.</p>
 
 <p>Write fast, minimal and efficient code! Make sure that it minifies well. Optimization is more important than internal readability in this case.</p>
+
+<script>
+(function(w, d) {
+
+/*
+	Debug
+*/
+function printDebug() {
+	d.getElementById('cookieValue').innerHTML = 'Cookie: <code>' + d.cookie + '</code>';
+}
+printDebug();
+MT.event.add('timedResize', printDebug);
+
+}(window, document));
+</script>
 
 </body>
 </html>
