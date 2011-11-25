@@ -71,10 +71,10 @@
 				}, 200);
 			}
 		}
-		w.addEventListener('resize', timedResize, false);
+		if (w.addEventListener) w.addEventListener('resize', timedResize, false);
+		else if (w.attachEvent) w.attachEvent('onresize', timedResize);
 	}());
 	
-
 	// Breakpoint handling
 	MT.bp = (function() {
 		var registry = [];
@@ -119,10 +119,13 @@
 			  bp,
 			  groups = MT.g.groups,
 			  cap,
-			  i;
+			  i,
+			  dEl = d.documentElement;
 	
-		// Viewport width and height
-		if (w.innerWidth) { caps.vpw = w.innerWidth; }
+		// Viewport width
+		if (w.innerWidth) { caps.vpw = w.innerWidth };
+		else if (dEl && dEl.offsetWidth) { caps.vpw = dEl.offsetWidth };
+		
 		// Grid column width
 		// Remove margin from viewport, cap at max width, max 2 decimals
 		caps.gw = (Math.min(caps.vpw * ((100 - (MT.g.margin * 2)) / 100), MT.g.max) / MT.g.cols).toFixed(2).replace('.', ',');
