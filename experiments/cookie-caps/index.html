@@ -11,85 +11,102 @@
 	*/
 	var MT = w.MT = w.MT || {};
 
-	// Adaptation handling
-	MT.adapt = (function() {
-		var list = [],
-			  delayResize = false,
-			  resetDelay,
-			  delayedResize;
-	
-		function callMethods(methods) {
-			if (methods && methods.length) {
-				for (var i = 0; i < methods.length; i++) {
-					methods[i]();
-				}
-			}
-		}
-	
-		function resize() {
-			if (list.resize.length) {
-				// console.log('OO every');
-				if (!delayResize) {
-					// console.log('== first');
-					delayResize = true;
-					callMethods(list.resize);
-					resetDelay = setTimeout(function() {
-						delayResize = false;
-					}, 300);
-				} else if (!delayedResize) {
-					// console.log('|| timed');
-					clearTimeout(resetDelay);
-					delayedResize = setTimeout(function() {
-						callMethods(list.resize);
-						delayedResize = null;
-						resetDelay = setTimeout(function() {
-							delayResize = false;
-						}, 400);
-					}, 200);
-				}
-			}
-		}
-	
-		w.addEventListener('resize', resize, false);
+	// Custom events
+	MT.event = (function() {
+		var registry = [];
 	
 		return {
 			add: function(type, method) {
-				if (!list[type]) list[type] = [];
-				list[type].push(method);
-			}
-		};
-	}());
-
-	// Breakpoint handling
-	MT.bp = (function() {
-		var list = [];
-	
-		return {
-			add: function(bps) {
-				list = list.concat(bps);
+				if (!registry[type]) registry[type] = [];
+				registry[type].push(method);
 			},
-			remove: function(bps) {
-				var i, x;
-				for (i = 0; i < bps.length; i++) {
-					for (x = 0; x < list.length; x++) {
-						if (list[x].id === bps[i]) list.splice(i, 1);
+			
+			remove: function(type, method) {
+				var methods = registry[type], i;
+				if (methods instanceof Array) {
+					for (i = 0; i < methods.length; i++) {
+						if (methods[i] === method) {
+							methods[i].splice(i, 1);
+							break;
+						}
 					}
 				}
 			},
+			
+			fire: function(type) {
+				var methods = registry[type], i;
+				console.log(methods);
+				if (methods instanceof Array) {
+					for (i = 0; i < methods.length; i++) {
+						methods[i]();
+					}
+				}
+			}
+		};
+	}());
+	
+	// Timed resize event
+	(function() {
+		var delayResize = false,
+		    resetDelay,
+		    delayedResize;
+		
+		function timedResize() {
+			// console.log('OO every');
+			if (!delayResize) {
+				// console.log('== first');
+				delayResize = true;
+				MT.event.fire('timedResize');
+				resetDelay = setTimeout(function() {
+					delayResize = false;
+				}, 300);
+			} else if (!delayedResize) {
+				// console.log('|| timed');
+				clearTimeout(resetDelay);
+				delayedResize = setTimeout(function() {
+					MT.event.fire('timedResize');
+					delayedResize = null;
+					resetDelay = setTimeout(function() {
+						delayResize = false;
+					}, 400);
+				}, 200);
+			}
+		}
+		w.addEventListener('resize', timedResize, false);
+	}());
+	
+
+	// Breakpoint handling
+	MT.bp = (function() {
+		var registry = [];
+	
+		return {
+			add: function(bps) {
+				if (bps instanceof Array) registry = registry.concat(bps);
+			},
+			
+			remove: function(bps) {
+				var i, x;
+				for (i = 0; i < bps.length; i++) {
+					for (x = 0; x < registry.length; x++) {
+						if (registry[x].id === bps[i]) registry.splice(i, 1);
+					}
+				}
+			},
+			
 			getActive: function() {
 				var active = [],
 						vpw = MT.cap.vpw,
 						i,
 						bp;
-				for (i = 0; i < list.length; i++) {
-					bp = list[i];
+				for (i = 0; i < registry.length; i++) {
+					bp = registry[i];
 					(vpw >= bp.min && vpw <= bp.max) ? active.push(bp) :
 						(!bp.max && vpw >= bp.min) ? active.push(bp) :
 							(!bp.min && vpw <= bp.max) && active.push(bp);
 				}
 				return active.length ? active : null;
-			},
-			list: list
+			}
 		};
 	}());
 
@@ -167,7 +184,7 @@
 	*/
 	
 	MT.capTests();
-	MT.adapt.add('resize', MT.capTests);
+	MT.event.add('timedResize', MT.capTests);
 	}(window, document));
 	
 	if (console && console.log) console.log('cookie: ' + document.cookie);
@@ -195,5 +212,3 @@
 
 </body>
 </html>
-
-
