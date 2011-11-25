@@ -123,8 +123,8 @@
 			  dEl = d.documentElement;
 	
 		// Viewport width
-		if (w.innerWidth) { caps.vpw = w.innerWidth };
-		else if (dEl && dEl.offsetWidth) { caps.vpw = dEl.offsetWidth };
+		if (w.innerWidth) { caps.vpw = w.innerWidth }
+		else if (dEl && dEl.offsetWidth) { caps.vpw = dEl.offsetWidth }
 		
 		// Grid column width
 		// Remove margin from viewport, cap at max width, max 2 decimals
@@ -191,6 +191,11 @@
 	if (console && console.log) console.log('cookie: ' + d.cookie);
 	}(window, document));
 	</script>
+	
+	<link rel="stylesheet" href="css/basic.css"/>
+	<link rel="stylesheet" media="only screen and (max-width: 759px)" href="css/narrow.css"/>
+	<link rel="stylesheet" media="only screen and (min-width: 760px)" href="css/medium.css"/>
+	<link rel="stylesheet" media="only screen and (min-width: 1200px)" href="css/wide.css"/>
 </head>
 <body>
 
@@ -200,19 +205,70 @@
 
 <p>We must know the capabilities before the assets are loaded. To do that we set a cookie as soon as possible, and then that cookie will be sent with the asset request, along with the asset's configuration in its URL.</p>
 
-<h2>Examples</h2>
+<h2>Issues</h2>
 
-<p>There are no examples of adapted assets yet.</p>
+<p></p>
+
+<h2>The Cookie</h2>
+
+<p><strong><code>RESS</code></strong> is the name of the cookie.</p>
 
 <p id="cookieValue"></p>
 
+<h3>Data</h3>
+
+<p>The cookie uses short key names to keep it small in size. Here are all the keys and what values they may have:</p>
+
+<dl>
+	<dt>bp</dt>
+	<dd>ID of the active breakpoint.</dd>
+	<dd>String value.</dd>
+	<dt>vpw</dt>
+	<dd>Viewport width, in pixels.</dd>
+	<dd>Int value.</dd>
+	<dt>gw</dt>
+	<dd>Width of a grid column, in pixels.</dd>
+	<dd>Int or float value, truncated at two decimals.</dd>
+	<dt>gn<em>[group ID]</em></dt>
+	<dd>Width of a group, in pixels.</dd>
+	<dd>Int value.</dd>
+	<dd><em>[group ID]</em> is a string.</dd>
+</dl>
+
+<h3>Character conventions</h3>
+
+<p>The cookie must be compliant with [FIXME which cookie spec?].</p>
+
+<dl>
+	<dt>| (pipe)</dt>
+	<dd>Key-value pair separator.</dd>
+	<dd><code>key.value|key.value</code></dd>
+	<dt>. (period)</dt>
+	<dd>Key-value separator.</dd>
+	<dd><code>key.value</code></dd>
+	<dt>, (comma)</dt>
+	<dd>Decimal place in float values.</dd>
+	<dd><code>13,37</code></dd>
+	<dt>String value</dt>
+	<dd>May only contain <em>A-Z</em> and <em>0-9</em></dd>
+</dl>
+
+<h2>Examples</h2>
+
+<p>These assets aren't scaled yet&hellip;</p>
+
 <p><img src="img/angry-cookie-monster.jpg" alt="What the hell is this crap!? Asks Cookie Monster." /></p>
 
-<h2>Header scripts</h2>
+<div id="example-debug"></div>
 
-<p>These script need to run as soon as possible, before any external resources.</p>
-
-<p>Write fast, minimal and efficient code! Make sure that it minifies well. Optimization is more important than internal readability in this case.</p>
+<div id="examples">
+	<div class="info m-8g w-1o3 m-l w-l"><img src="img/cookieclose.jpg" /></div>
+	<div class="info m-8g w-1o3 m-l w-l"><img src="img/cookiekong.jpg" /></div>
+	<div class="info m-8g w-1o3 m-l w-l"><img src="img/cookiecrazy.jpg" /></div>
+	<div class="info m-8g w-1o3 m-l w-l"><img src="img/cookiemonstah.jpg" /></div>
+	<div class="info m-8g w-1o3 m-l w-l"><img src="img/cookiewants.jpg" /></div>
+	<div class="info m-8g w-1o3 m-l w-l"><img src="img/cookiemonsterindeed.jpg" /></div>
+</div>
 
 <script>
 (function(w, d) {
@@ -220,6 +276,7 @@
 /*
 	Debug
 */
+
 function readCookie(cookieName) {
 	var cookie = d.cookie.split('; '), i;
 	for (i = 0; i < cookie.length; i++) {
@@ -229,8 +286,15 @@ function readCookie(cookieName) {
 	return undefined;
 }
 
+var cookieName = 'RESS',
+    hasCookie = 'Your cookie value: <code>$</code>',
+    noCookie = 'You don\'t have a <strong>' + cookieName + '</strong> cookie set :(';
+
 function printDebug() {
-	d.getElementById('cookieValue').innerHTML = 'Cookie: <code>' + readCookie('RESS') + '</code>';
+	var cookie = readCookie(cookieName);
+	d.getElementById('cookieValue').innerHTML = cookie ?
+		hasCookie.replace('$', cookie) :
+		noCookie;
 }
 printDebug();
 MT.event.add('timedResize', printDebug);

@@ -1,0 +1,11 @@
+img {
+	max-width: 100%;
+}
+
+dl {
+	margin-left: 16px;
+}
+
+dt {
+	font-weight: bold;
+}
