@@ -9,7 +9,7 @@ import java.util.Map;
  * User: simjohmt
  * Date: 2011-nov-24
  * Time: 10:56:30
- * To change this template use File | Settings | File Templates.
+ * POJO for the data sent via the RESS cookie
  */
 public class RessCookie {
 

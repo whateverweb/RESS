@@ -7,7 +7,7 @@ import org.apache.log4j.Logger;
  * User: simjohmt
  * Date: 2011-nov-24
  * Time: 10:52:53
- * To change this template use File | Settings | File Templates.
+ * Helperclass that parses the RESS cookie and creates a RessCookie object containing the data.
  */
 public class RessCookieUtil {
     private final Logger logger = Logger.getLogger(RessCookieUtil.class.getName());
@@ -33,6 +33,8 @@ public class RessCookieUtil {
                 String[] aSplitValue = aValue.split("\\.");
                 if(aSplitValue.length == 2) {
                     aReturnValue.setViewPortWidth(Integer.parseInt(aSplitValue[1]));    
+                } else if(aSplitValue.length == 3) {
+                    aReturnValue.setViewPortWidth((int)Double.parseDouble(aSplitValue[1] + "." + aSplitValue[2]));
                 }
             } else if(aValue.startsWith("bp.")) {
                 String[] aSplitValue = aValue.split("\\.");
@@ -42,7 +44,9 @@ public class RessCookieUtil {
             } else if(aValue.startsWith("gw.")) {
                 String[] aSplitValue = aValue.split("\\.");
                 if(aSplitValue.length == 2) {
-                    aReturnValue.setGridWidth(Double.parseDouble(aSplitValue[1]));
+                    aReturnValue.setGridWidth(Double.parseDouble(aSplitValue[1].replaceAll(", ", ".")));
+                } else if(aSplitValue.length == 3) {
+                    aReturnValue.setGridWidth(Double.parseDouble(aSplitValue[1] + "." + aSplitValue[2]));
                 }
             } else if(aValue.startsWith("g.")) {
                 String[] aSplitValue = aValue.split("\\.");

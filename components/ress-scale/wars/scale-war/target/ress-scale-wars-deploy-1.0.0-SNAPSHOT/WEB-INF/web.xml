@@ -24,7 +24,11 @@
         <servlet-name>ScaleServlet</servlet-name>
         <servlet-class>com.mobiletech.ress.scale.servlets.ScaleServlet</servlet-class>
     </servlet>
-   
+    <servlet>
+        <servlet-name>CacheInspectorServlet</servlet-name>
+        <servlet-class>com.mobiletech.ress.scale.servlets.CacheInspectorServlet</servlet-class>
+    </servlet>
+
     <servlet-mapping>
         <servlet-name>DeviceRepo</servlet-name>
         <url-pattern>/reloadDevices</url-pattern>
@@ -33,7 +37,10 @@
         <servlet-name>ScaleServlet</servlet-name>
         <url-pattern>/img/*</url-pattern>
     </servlet-mapping>
-    
+        <servlet-mapping>
+        <servlet-name>CacheInspectorServlet</servlet-name>
+        <url-pattern>/inspect/*</url-pattern>
+    </servlet-mapping>
     <welcome-file-list>
         <welcome-file>index.jspx</welcome-file>
         <welcome-file>index.jsp</welcome-file>

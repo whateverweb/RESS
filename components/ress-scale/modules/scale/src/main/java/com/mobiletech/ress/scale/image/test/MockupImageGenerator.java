@@ -38,5 +38,26 @@ public class MockupImageGenerator {
         }
     }
 
+    public static byte[] generateErrorImage(String theError) throws Exception {
+        try{
+            BufferedImage aReturnImage = new BufferedImage(400, 300, BufferedImage.TYPE_INT_RGB);
+            Graphics aGraphics = aReturnImage.createGraphics();
+            aGraphics.setColor(Color.GRAY);
+            aGraphics.fillRect(0, 0, 400, 300);
+
+            aGraphics.setColor(Color.BLACK);
+            aGraphics.drawString(theError, 10, 150);
+            aGraphics.dispose();
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            ImageIO.write( aReturnImage, "jpg", baos );
+            baos.flush();
+            byte[] imageInByte = baos.toByteArray();
+            baos.close();
+            return imageInByte;
+        } catch(Exception e) {
+            throw e;
+        }
+    }
+
 
 }

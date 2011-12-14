@@ -9,7 +9,7 @@ import org.apache.log4j.Logger;
  * User: simjohmt
  * Date: 2011-nov-24
  * Time: 08:53:55
- * To change this template use File | Settings | File Templates.
+ * Class to parse the url for the requested image
  */
 public class PathUtil {
     private final Logger logger = Logger.getLogger(PathUtil.class.getName());
@@ -24,7 +24,14 @@ public class PathUtil {
         }
         return myInstance;
     }
-    
+
+    /**
+     * Logic to parse the path defined in the requirement document for what the service should be able to handles
+     * @param thePath
+     * @param theWebappPath
+     * @return
+     * @throws Exception
+     */
     public List<PathCommand> parsePath(String thePath, String theWebappPath) throws Exception {
         List<PathCommand> someReturnCommands = new ArrayList<PathCommand>();
 
@@ -102,8 +109,6 @@ public class PathUtil {
             logger.debug("No webapp-path found in the path, aborting... The path: "  + thePath + " the webapppath: " + theWebappPath);
             throw new Exception("No webapp-path found in the path, aborting... The path: "  + thePath + " the webapppath: " + theWebappPath);
         }
-
-        logger.info("My path: " + thePath + "mywpi: " + anIndexOfWebappPath + " lwp: " + theWebappPath.length() + " httpi: " + anIndexOfHttp);
 
         return thePath.substring(anIndexOfWebappPath + theWebappPath.length(), anIndexOfHttp);
     }
