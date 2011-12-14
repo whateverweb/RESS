@@ -11,85 +11,101 @@
 	*/
 	var MT = w.MT = w.MT || {};
 
-	// Adaptation handling
-	MT.adapt = (function() {
-		var list = [],
-			  delayResize = false,
-			  resetDelay,
-			  delayedResize;
-	
-		function callMethods(methods) {
-			if (methods && methods.length) {
-				for (var i = 0; i < methods.length; i++) {
-					methods[i]();
-				}
-			}
-		}
-	
-		function resize() {
-			if (list.resize.length) {
-				// console.log('OO every');
-				if (!delayResize) {
-					// console.log('== first');
-					delayResize = true;
-					callMethods(list.resize);
-					resetDelay = setTimeout(function() {
-						delayResize = false;
-					}, 300);
-				} else if (!delayedResize) {
-					// console.log('|| timed');
-					clearTimeout(resetDelay);
-					delayedResize = setTimeout(function() {
-						callMethods(list.resize);
-						delayedResize = null;
-						resetDelay = setTimeout(function() {
-							delayResize = false;
-						}, 400);
-					}, 200);
-				}
-			}
-		}
-	
-		w.addEventListener('resize', resize, false);
+	// Custom events
+	MT.event = (function() {
+		var registry = [];
 	
 		return {
 			add: function(type, method) {
-				if (!list[type]) list[type] = [];
-				list[type].push(method);
-			}
-		};
-	}());
-
-	// Breakpoint handling
-	MT.bp = (function() {
-		var list = [];
-	
-		return {
-			add: function(bps) {
-				list = list.concat(bps);
+				if (!registry[type]) registry[type] = [];
+				registry[type].push(method);
 			},
-			remove: function(bps) {
-				var i, x;
-				for (i = 0; i < bps.length; i++) {
-					for (x = 0; x < list.length; x++) {
-						if (list[x].id === bps[i]) list.splice(i, 1);
+			
+			remove: function(type, method) {
+				var methods = registry[type], i;
+				if (methods instanceof Array) {
+					for (i = 0; i < methods.length; i++) {
+						if (methods[i] === method) {
+							methods[i].splice(i, 1);
+							break;
+						}
 					}
 				}
 			},
+			
+			fire: function(type) {
+				var methods = registry[type], i;
+				if (methods instanceof Array) {
+					for (i = 0; i < methods.length; i++) {
+						methods[i]();
+					}
+				}
+			}
+		};
+	}());
+	
+	// Timed resize event
+	(function() {
+		var delayResize = false,
+		    resetDelay,
+		    delayedResize;
+		
+		function timedResize() {
+			// console.log('OO every');
+			if (!delayResize) {
+				// console.log('== first');
+				delayResize = true;
+				MT.event.fire('timedResize');
+				resetDelay = setTimeout(function() {
+					delayResize = false;
+				}, 300);
+			} else if (!delayedResize) {
+				// console.log('|| timed');
+				clearTimeout(resetDelay);
+				delayedResize = setTimeout(function() {
+					MT.event.fire('timedResize');
+					delayedResize = null;
+					resetDelay = setTimeout(function() {
+						delayResize = false;
+					}, 400);
+				}, 200);
+			}
+		}
+		if (w.addEventListener) w.addEventListener('resize', timedResize, false);
+		else if (w.attachEvent) w.attachEvent('onresize', timedResize);
+	}());
+	
+	// Breakpoint handling
+	MT.bp = (function() {
+		var registry = [];
+	
+		return {
+			add: function(bps) {
+				if (bps instanceof Array) registry = registry.concat(bps);
+			},
+			
+			remove: function(bps) {
+				var i, x;
+				for (i = 0; i < bps.length; i++) {
+					for (x = 0; x < registry.length; x++) {
+						if (registry[x].id === bps[i]) registry.splice(i, 1);
+					}
+				}
+			},
+			
 			getActive: function() {
 				var active = [],
 						vpw = MT.cap.vpw,
 						i,
 						bp;
-				for (i = 0; i < list.length; i++) {
-					bp = list[i];
+				for (i = 0; i < registry.length; i++) {
+					bp = registry[i];
 					(vpw >= bp.min && vpw <= bp.max) ? active.push(bp) :
 						(!bp.max && vpw >= bp.min) ? active.push(bp) :
 							(!bp.min && vpw <= bp.max) && active.push(bp);
 				}
 				return active.length ? active : null;
-			},
-			list: list
+			}
 		};
 	}());
 
@@ -103,10 +119,13 @@
 			  bp,
 			  groups = MT.g.groups,
 			  cap,
-			  i;
+			  i,
+			  dEl = d.documentElement;
 	
-		// Viewport width and height
-		if (w.innerWidth) { caps.vpw = w.innerWidth; }
+		// Viewport width
+		if (w.innerWidth) { caps.vpw = w.innerWidth }
+		else if (dEl && dEl.offsetWidth) { caps.vpw = dEl.offsetWidth }
+		
 		// Grid column width
 		// Remove margin from viewport, cap at max width, max 2 decimals
 		caps.gw = (Math.min(caps.vpw * ((100 - (MT.g.margin * 2)) / 100), MT.g.max) / MT.g.cols).toFixed(2).replace('.', ',');
@@ -167,11 +186,16 @@
 	*/
 	
 	MT.capTests();
-	MT.adapt.add('resize', MT.capTests);
-	}(window, document));
+	MT.event.add('timedResize', MT.capTests);
 	
-	if (console && console.log) console.log('cookie: ' + document.cookie);
+	if (console && console.log) console.log('cookie: ' + d.cookie);
+	}(window, document));
 	</script>
+	
+	<link rel="stylesheet" href="css/basic.css"/>
+	<link rel="stylesheet" media="only screen and (max-width: 759px)" href="css/narrow.css"/>
+	<link rel="stylesheet" media="only screen and (min-width: 760px)" href="css/medium.css"/>
+	<link rel="stylesheet" media="only screen and (min-width: 1200px)" href="css/wide.css"/>
 </head>
 <body>
 
@@ -181,19 +205,102 @@
 
 <p>We must know the capabilities before the assets are loaded. To do that we set a cookie as soon as possible, and then that cookie will be sent with the asset request, along with the asset's configuration in its URL.</p>
 
+<h2>Issues</h2>
+
+<p></p>
+
+<h2>The Cookie</h2>
+
+<p><strong><code>RESS</code></strong> is the name of the cookie.</p>
+
+<p id="cookieValue"></p>
+
+<h3>Data</h3>
+
+<p>The cookie uses short key names to keep it small in size. Here are all the keys and what values they may have:</p>
+
+<dl>
+	<dt>bp</dt>
+	<dd>ID of the active breakpoint.</dd>
+	<dd>String value.</dd>
+	<dt>vpw</dt>
+	<dd>Viewport width, in pixels.</dd>
+	<dd>Int value.</dd>
+	<dt>gw</dt>
+	<dd>Width of a grid column, in pixels.</dd>
+	<dd>Int or float value, truncated at two decimals.</dd>
+	<dt>gn<em>[group ID]</em></dt>
+	<dd>Width of a group, in pixels.</dd>
+	<dd>Int value.</dd>
+	<dd><em>[group ID]</em> is a string.</dd>
+</dl>
+
+<h3>Character conventions</h3>
+
+<p>The cookie must be compliant with [FIXME which cookie spec?].</p>
+
+<dl>
+	<dt>| (pipe)</dt>
+	<dd>Key-value pair separator.</dd>
+	<dd><code>key.value|key.value</code></dd>
+	<dt>. (period)</dt>
+	<dd>Key-value separator.</dd>
+	<dd><code>key.value</code></dd>
+	<dt>, (comma)</dt>
+	<dd>Decimal place in float values.</dd>
+	<dd><code>13,37</code></dd>
+	<dt>String value</dt>
+	<dd>May only contain <em>A-Z</em> and <em>0-9</em></dd>
+</dl>
+
 <h2>Examples</h2>
 
-<p>There are no examples yet.</p>
+<p>These assets aren't scaled yet&hellip;</p>
 
 <p><img src="img/angry-cookie-monster.jpg" alt="What the hell is this crap!? Asks Cookie Monster." /></p>
 
-<h2>Header scripts</h2>
+<div id="example-debug"></div>
 
-<p>These script need to run as soon as possible, before any external resources.</p>
+<div id="examples">
+	<div class="info m-8g w-1o3 m-l w-l"><img src="img/cookieclose.jpg" /></div>
+	<div class="info m-8g w-1o3 m-l w-l"><img src="img/cookiekong.jpg" /></div>
+	<div class="info m-8g w-1o3 m-l w-l"><img src="img/cookiecrazy.jpg" /></div>
+	<div class="info m-8g w-1o3 m-l w-l"><img src="img/cookiemonstah.jpg" /></div>
+	<div class="info m-8g w-1o3 m-l w-l"><img src="img/cookiewants.jpg" /></div>
+	<div class="info m-8g w-1o3 m-l w-l"><img src="img/cookiemonsterindeed.jpg" /></div>
+</div>
 
-<p>Write fast, minimal and efficient code! Make sure that it minifies well. Optimization is more important than internal readability in this case.</p>
+<script>
+(function(w, d) {
+
+/*
+	Debug
+*/
+
+function readCookie(cookieName) {
+	var cookie = d.cookie.split('; '), i;
+	for (i = 0; i < cookie.length; i++) {
+		if (cookie[i].indexOf(cookieName + '=') === 0)
+			return cookie[i].substr(cookieName.length + 1);
+	}
+	return undefined;
+}
+
+var cookieName = 'RESS',
+    hasCookie = 'Your cookie value: <code>$</code>',
+    noCookie = 'You don\'t have a <strong>' + cookieName + '</strong> cookie set :(';
+
+function printDebug() {
+	var cookie = readCookie(cookieName);
+	d.getElementById('cookieValue').innerHTML = cookie ?
+		hasCookie.replace('$', cookie) :
+		noCookie;
+}
+printDebug();
+MT.event.add('timedResize', printDebug);
+
+}(window, document));
+</script>
 
 </body>
 </html>
-
-
